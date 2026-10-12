@@ -1,0 +1,14 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Chartreuse"><meta name="theme-color" content="#0b0b14"><link rel="stylesheet" href="style.css"><script>document.documentElement.dataset.theme=localStorage.theme||"sombre"</script><title>Chat · Chartreuse</title></head><body>
+<main><h1 class="grad">Chat</h1><p class="sub">Photos et PDF acceptés (📎).</p>
+<div class="chat" id="m"></div><small class="mu" id="cn"></small><div class="send"><label class="ib">📎<input type="file" id="cf" hidden accept="image/*,.pdf,.docx,.xlsx,.pptx"></label><textarea id="t" rows="1" placeholder="Message…"></textarea><button id="sb" onclick="send()">➤</button></div></main>
+<script src="config.js"></script><script src="data.js"></script><script src="auth.js"></script><script>
+let me,first=true,CH={},pend=null;
+boot("c","chat").then(s=>{me=s;DB.watch("chat",draw,2000)});
+function draw(o){CH=o||{};const a=Object.entries(CH).sort((x,y)=>x[1].ts-y[1].ts).slice(-150),near=m.scrollHeight-m.scrollTop-m.clientHeight<90;
+m.innerHTML=a.map(([id,v])=>`<div class="msg ${v.u==me.name?"me":""}"><small>${esc(v.u)} · ${new Date(v.ts).toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}${me.role=="admin"?` <a href="#" onclick="rm('${id}');return false">✕</a>`:""}</small>${esc(v.t).replace(/\n/g,"<br>")}${attHTML(A(v))}</div>`).join("")||'<p class="mu">Aucun message. Lance la conversation !</p>';
+if(near||first){m.scrollTop=m.scrollHeight}hydrate(m).then(()=>{if(near||first)m.scrollTop=m.scrollHeight;first=false});unread("c")}
+cf.onchange=()=>{pend=cf.files[0]||null;cn.textContent=pend?"📎 "+pend.name:""};
+async function send(){const x=t.value.trim();if(!x&&!pend)return;sb.disabled=true;try{const v={u:me.name,t:x,ts:Date.now()};if(pend)v.att=[await upFile(pend)];await DB.put("chat/"+DB.id(),v);t.value="";pend=null;cf.value="";cn.textContent="";first=true;draw(await DB.get("chat"))}catch(e){alert(e.message)}sb.disabled=false}
+async function rm(id){A(CH[id]).forEach(i=>DB.del("files/"+i));await DB.del("chat/"+id);draw(await DB.get("chat"))}
+t.addEventListener("keydown",e=>{if(e.key=="Enter"&&!e.shiftKey&&innerWidth>700){e.preventDefault();send()}});
+</script></body></html>
