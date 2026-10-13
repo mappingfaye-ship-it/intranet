@@ -4,7 +4,7 @@ let UNR={};const never=()=>new Promise(()=>{});
 function setTheme(t){document.documentElement.dataset.theme=t;localStorage.theme=t}
 function cycle(b){const n=TH[(TH.findIndex(t=>t[0]==cur())+1)%TH.length];setTheme(n[0]);b.textContent=n[1]}
 function logout(){Auth.clear();location.href="index.html"}
-async function login(user,pw){if(!DB.ok)throw new Error("Firebase non configuré (config.js)");const k=(user||"").trim().toLowerCase();if(!k)throw new Error("Identifiant ?");
+async function login(user,pw){if(!DB.ok)throw new Error(!CONFIG.apiKey?"apiKey vide : config.js ancien en cache ?":"url vide dans config.js");const k=(user||"").trim().toLowerCase();if(!k)throw new Error("Identifiant ?");
 const v=await DB.pub("ver/"+k)||0;let j;try{j=await fbAuth("signInWithPassword",emailOf(k,v),pw)}catch(e){throw new Error(/TOO_MANY/.test(e.message)?"Trop d'essais, patiente quelques minutes":"Identifiant ou code incorrect")}
 Auth.save({rt:j.refreshToken,idt:j.idToken,exp:Date.now()+j.expiresIn*1000,uid:j.localId});let m;try{m=await DB.get("members/"+j.localId)}catch(e){}if(!m){Auth.clear();throw new Error("Compte non autorisé")}
 localStorage.sess=JSON.stringify({key:m.key,name:m.name,role:m.role,perms:m.perms||{},uid:j.localId})}

@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Chartreuse"><meta name="theme-color" content="#0b0b14"><link rel="stylesheet" href="style.css"><script>document.documentElement.dataset.theme=localStorage.theme||"sombre"</script><title>Accueil · Chartreuse</title></head><body>
 <main><h1 class="grad">Mises à jour</h1><p class="sub">Projet de mapping de la Chartreuse</p><div id="cd"></div><div id="pe"></div><div id="up"></div></main>
-<script src="config.js"></script><script src="data.js"></script><script src="auth.js"></script><script>
+<script src="config.js?v=3"></script><script src="data.js?v=3"></script><script src="auth.js?v=3"></script><script>
 const $=i=>document.getElementById(i);
 boot("a").then(s=>{
 DB.watch("settings/jourj",j=>{if(!j){$("cd").innerHTML="";return}const d=Math.ceil((new Date(j)-Date.now())/864e5);$("cd").innerHTML=`<article class="card cdn"><span>⏳ Jour J</span><strong>${d>0?"J-"+d:d==0?"Aujourd'hui !":"Terminé"}</strong><small>${new Date(j).toLocaleString("fr-FR",{dateStyle:"full",timeStyle:"short"})}</small></article>`},60000);

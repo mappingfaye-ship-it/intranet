@@ -3,7 +3,7 @@
 <div class="tabs"><button id="t_in" onclick="view('in')">📥 Reçus</button><button id="t_sent" onclick="view('sent')">📤 Envoyés</button><button id="t_new" onclick="view('new')">✏️ Nouveau</button></div>
 <div id="ml"></div>
 <section class="card" id="cp" style="display:none"><h2>Nouveau message</h2><p class="mu" style="margin-bottom:6px">Destinataires :</p><div class="chk" id="rc"></div><input id="ms" placeholder="Objet"><textarea id="mb" rows="8" placeholder="Message (## titre, - puce, **gras**)"></textarea><p class="mu" style="margin-bottom:6px">Pièces jointes (tous formats, 3 Mo max chacune)</p><input type="file" id="mf" multiple><button id="sm" onclick="sendM()">Envoyer</button></section></main>
-<script src="config.js"></script><script src="data.js"></script><script src="auth.js"></script><script>
+<script src="config.js?v=3"></script><script src="data.js?v=3"></script><script src="auth.js?v=3"></script><script>
 const $=i=>document.getElementById(i);let me,tabk="in",MB={},SN={},op=null;
 boot("e","mail").then(async s=>{me=s;await users();$("rc").innerHTML=Object.entries(USR).filter(([k])=>k!=me.key).map(([k,u])=>`<label><input type="checkbox" class="rc" value="${k}"> ${esc(u.name)}</label>`).join("");await load();view("in");setInterval(async()=>{await load();if(tabk!="new")list()},6000)});
 async function load(){MB=await DB.get("mail/"+me.key)||{};SN=await DB.get("sent/"+me.key)||{}}

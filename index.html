@@ -19,10 +19,10 @@
 <div class="seg" id="seg"><button class="on" data-w="admin">Admin</button><button data-w="backup">Backup</button></div>
 <div class="dots" id="dots"></div><div class="pad" id="pad"></div><div class="err" id="err"></div>
 <button class="lnk" id="adm" onclick="setMode(mode=='admin'?'user':'admin')">🔐 Continuer en tant qu'admin</button></div></div>
-<script src="config.js"></script><script src="data.js"></script><script src="auth.js"></script><script>
+<script src="config.js?v=3"></script><script src="data.js?v=3"></script><script src="auth.js?v=3"></script><script>
 if(localStorage.sess&&Auth.s)location.replace("accueil.html");
 const $=i=>document.getElementById(i);let pin="",busy=false,mode="user",L=6,who="admin";
-if(!DB.ok)$("err").textContent="Firebase non configuré : remplis config.js";
+if(!DB.ok)$("err").textContent=!CONFIG.apiKey?"apiKey vide : config.js ancien en cache ?":"url vide dans config.js";
 $("pad").innerHTML=["1","2","3","4","5","6","7","8","9","C","0","⌫"].map(k=>`<button class="${k=="C"||k=="⌫"?"s":""}" onclick="press('${k}')">${k}</button>`).join("");
 document.querySelectorAll("#seg button").forEach(b=>b.onclick=()=>{who=b.dataset.w;document.querySelectorAll("#seg button").forEach(x=>x.className=x==b?"on":"")});
 function setMode(m){mode=m;L=m=="admin"?10:6;pin="";$("dots").innerHTML="<i></i>".repeat(L);draw();$("usr").style.display=m=="admin"?"none":"";$("seg").style.display=m=="admin"?"flex":"none";$("hint").textContent=m=="admin"?"Accès administrateur : code à 10 chiffres":"Identifiant + code à 6 chiffres";$("adm").textContent=m=="admin"?"← Retour connexion membre":"🔐 Continuer en tant qu'admin";$("err").textContent=""}

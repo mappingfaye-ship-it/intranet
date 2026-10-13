@@ -3,7 +3,7 @@
 <div class="chat" id="m"></div><small class="mu" id="cn"></small>
 <div class="gifp" id="gp" hidden><input id="gq" placeholder="Chercher un GIF…" oninput="gs()"><div id="gg"></div></div>
 <div class="send"><label class="ib">📎<input type="file" id="cf" hidden></label><button class="ib" onclick="gif()">GIF</button><textarea id="t" rows="1" placeholder="Message…"></textarea><button id="sb" onclick="send()">➤</button></div></main>
-<script src="config.js"></script><script src="data.js"></script><script src="auth.js"></script><script>
+<script src="config.js?v=3"></script><script src="data.js?v=3"></script><script src="auth.js?v=3"></script><script>
 const $=i=>document.getElementById(i);let me,path="chat",first=true,pend=null,CH={};
 boot("c","chat").then(async s=>{me=s;await users();chips();pick("chat");setInterval(tick,2000);setInterval(chips,9000)});
 function chips(){$("th").innerHTML=`<button class="chip ${path=="chat"?"on":""}" onclick="pick('chat')">💬 Général${UNR.chat?'<b class="dot" style="display:block"></b>':""}</button>`+Object.entries(USR).filter(([k,x])=>k!=me.key&&(x.role=="admin"||(x.perms||{}).chat)).map(([k,x])=>{const p="dm/"+pair(me.key,k);return `<button class="chip ${path==p?"on":""}" onclick="pick('${p}')">🔒 ${esc(x.name)}${UNR[p]?'<b class="dot" style="display:block"></b>':""}</button>`}).join("")}

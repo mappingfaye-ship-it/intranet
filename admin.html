@@ -13,7 +13,7 @@
 <p class="mu" style="margin-top:12px;font-size:.85rem">Les codes ne sont jamais stockés ni affichés : note-le au moment de la création, ou utilise 🔑 pour en définir un nouveau.</p><div id="lus" style="margin-top:10px"></div></section>
 <section id="s6" class="card"><h2>Réglages</h2><p class="mu" style="margin-bottom:6px">Thème par défaut</p><select id="sth"><option value="sombre">🌙 Sombre</option><option value="clair">☀️ Clair</option><option value="chartreuse">🌿 Chartreuse</option><option value="ocean">🌊 Océan</option></select>
 <p class="mu" style="margin-bottom:6px">Date et heure du Jour J</p><input id="sj" type="datetime-local"><button onclick="saveSet()">Enregistrer</button><hr style="border:0;border-top:1px solid var(--bd);margin:18px 0"><button class="d" onclick="clrChat()">Vider le chat général</button></section></main>
-<script src="config.js"></script><script src="data.js"></script><script src="auth.js"></script><script>
+<script src="config.js?v=3"></script><script src="data.js?v=3"></script><script src="auth.js?v=3"></script><script>
 const $=i=>document.getElementById(i);let ME,UD={},ED={},TD={},PD={},UA=[],xu="",xe="",xt="",xk="";
 const row=(h,b)=>`<div class="row"><div>${h}</div><span>${b}</span></div>`,bt=(f,l,c="g")=>`<button class="${c}" onclick="${f}">${l}</button>`,none='<p class="mu">Rien pour le moment.</p>';
 const fresh=()=>{$("ua").innerHTML=audHTML("uaa");$("ea").innerHTML=audHTML("eaa");$("ta").innerHTML=audHTML("taa");$("pa").innerHTML=audHTML("paa")};
