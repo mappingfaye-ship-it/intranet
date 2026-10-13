@@ -1,5 +1,5 @@
 <!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Chartreuse"><meta name="theme-color" content="#0b0b14"><link rel="stylesheet" href="style.css"><script>document.documentElement.dataset.theme=localStorage.theme||"sombre"</script><title>Agenda · Chartreuse</title></head><body>
 <main><h1 class="grad">Agenda</h1><p class="sub">Mapping de la Chartreuse</p><div class="card"><div class="tl" id="tl"></div></div></main>
 <script src="config.js"></script><script src="data.js"></script><script src="auth.js"></script><script>
-boot("g","agenda").then(s=>DB.watch("events",o=>{const a=Object.values(o||{}).filter(v=>vis(v,s)).sort((x,y)=>x.ord-y.ord);tl.innerHTML=a.map(v=>`<div class="ev"><time>${esc(v.when)}</time><h3>${esc(v.title)}</h3><p>${esc(v.desc)}</p></div>`).join("")||'<p class="mu">Rien de prévu.</p>'}));
+boot("g","agenda").then(s=>DB.watch("events/"+s.key,o=>{const a=Object.values(o||{}).sort((x,y)=>x.ord-y.ord);document.getElementById("tl").innerHTML=a.map(v=>`<div class="ev"><time>${esc(v.when)}</time><h3>${esc(v.title)}</h3><p>${esc(v.desc)}</p></div>`).join("")||'<p class="mu">Rien de prévu.</p>'}));
 </script></body></html>

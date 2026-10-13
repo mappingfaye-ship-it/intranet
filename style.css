@@ -47,3 +47,11 @@ main button:disabled{opacity:.5}main button.g{background:var(--hi);color:var(--t
 .tn a{flex-direction:column;gap:2px;font-size:.68rem;padding:4px 8px}.tn a i{font-size:1.4rem}.tn a.on{background:none;color:var(--c1)}
 main{padding-bottom:calc(96px + env(safe-area-inset-bottom))}h1{font-size:1.6rem}
 .chat{height:calc(100dvh - 400px)}.row{flex-direction:column;align-items:stretch}.row span{justify-content:flex-end}}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px}
+main .chip{flex:none;position:relative;background:var(--hi);color:var(--tx);white-space:nowrap}main .chip.on{background:linear-gradient(90deg,var(--c1),var(--c2));color:var(--on)}
+.att video{max-width:100%;max-height:300px;border-radius:12px}.att audio{max-width:100%}
+.mail{cursor:pointer;padding:14px 16px}.mail.un{border-left:4px solid var(--c1)}.mbody{margin-top:12px;padding-top:12px;border-top:1px solid var(--bd);cursor:default}
+.gifp{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:10px;margin-bottom:10px}.gifp[hidden]{display:none}
+#gg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-height:220px;overflow:auto}#gg img{width:100%;border-radius:8px;cursor:pointer}
+.admseg{display:flex;gap:8px;margin-bottom:12px}.admseg button{flex:1}
+.lnk{background:none!important;color:var(--mu)!important;font-weight:400!important;text-decoration:underline;margin-top:16px;min-height:44px}

@@ -1,0 +1,94 @@
+{
+ "rules": {
+  ".read": false,
+  ".write": false,
+  "ver": {
+   "$k": {
+    ".read": true,
+    ".write": "auth!=null&&root.child('members').child(auth.uid).child('role').val()=='admin'"
+   }
+  },
+  "members": {
+   ".read": "root.child('members').child(auth.uid).exists()",
+   "$uid": {
+    ".write": "auth!=null&&(root.child('members').child(auth.uid).child('role').val()=='admin'||!root.child('members').exists())"
+   }
+  },
+  "admin": {
+   ".read": "root.child('members').child(auth.uid).child('role').val()=='admin'",
+   ".write": "root.child('members').child(auth.uid).child('role').val()=='admin'"
+  },
+  "settings": {
+   ".read": "root.child('members').child(auth.uid).exists()",
+   ".write": "root.child('members').child(auth.uid).child('role').val()=='admin'"
+  },
+  "updates": {
+   "$k": {
+    ".read": "(root.child('members').child(auth.uid).exists()&&(root.child('members').child(auth.uid).child('key').val()==$k||root.child('members').child(auth.uid).child('role').val()=='admin'))",
+    ".write": "root.child('members').child(auth.uid).child('role').val()=='admin'"
+   }
+  },
+  "events": {
+   "$k": {
+    ".read": "(root.child('members').child(auth.uid).exists()&&(root.child('members').child(auth.uid).child('key').val()==$k||root.child('members').child(auth.uid).child('role').val()=='admin'))",
+    ".write": "root.child('members').child(auth.uid).child('role').val()=='admin'"
+   }
+  },
+  "perso": {
+   "$k": {
+    ".read": "(root.child('members').child(auth.uid).exists()&&(root.child('members').child(auth.uid).child('key').val()==$k||root.child('members').child(auth.uid).child('role').val()=='admin'))",
+    ".write": "root.child('members').child(auth.uid).child('role').val()=='admin'"
+   }
+  },
+  "tasks": {
+   "$k": {
+    ".read": "(root.child('members').child(auth.uid).exists()&&(root.child('members').child(auth.uid).child('key').val()==$k||root.child('members').child(auth.uid).child('role').val()=='admin'))",
+    ".write": "root.child('members').child(auth.uid).child('role').val()=='admin'",
+    "$id": {
+     "done": {
+      ".write": "(root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('key').val()==$k)",
+      ".validate": "newData.val()==true"
+     }
+    }
+   }
+  },
+  "chat": {
+   ".read": "(root.child('members').child(auth.uid).child('role').val()=='admin'||root.child('members').child(auth.uid).child('perms').child('chat').val()==1)",
+   ".write": "root.child('members').child(auth.uid).child('role').val()=='admin'",
+   "$id": {
+    ".write": "(root.child('members').child(auth.uid).child('role').val()=='admin'||root.child('members').child(auth.uid).child('perms').child('chat').val()==1)&&((!data.exists()&&newData.child('k').val()==root.child('members').child(auth.uid).child('key').val())||(data.child('k').val()==root.child('members').child(auth.uid).child('key').val()&&(!newData.exists()||newData.child('k').val()==root.child('members').child(auth.uid).child('key').val()))||root.child('members').child(auth.uid).child('role').val()=='admin')",
+    ".validate": "newData.hasChildren(['u','k','ts'])"
+   }
+  },
+  "dm": {
+   "$pair": {
+    ".read": "(root.child('members').child(auth.uid).child('role').val()=='admin'||root.child('members').child(auth.uid).child('perms').child('chat').val()==1)&&($pair.beginsWith(root.child('members').child(auth.uid).child('key').val()+'_')||$pair.endsWith('_'+root.child('members').child(auth.uid).child('key').val()))",
+    "$id": {
+     ".write": "(root.child('members').child(auth.uid).child('role').val()=='admin'||root.child('members').child(auth.uid).child('perms').child('chat').val()==1)&&($pair.beginsWith(root.child('members').child(auth.uid).child('key').val()+'_')||$pair.endsWith('_'+root.child('members').child(auth.uid).child('key').val()))&&((!data.exists()&&newData.child('k').val()==root.child('members').child(auth.uid).child('key').val())||(data.child('k').val()==root.child('members').child(auth.uid).child('key').val()&&(!newData.exists()||newData.child('k').val()==root.child('members').child(auth.uid).child('key').val())))",
+     ".validate": "newData.hasChildren(['u','k','ts'])"
+    }
+   }
+  },
+  "mail": {
+   "$k": {
+    ".read": "(root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('key').val()==$k)",
+    "$id": {
+     ".write": "root.child('members').child(auth.uid).exists()&&(root.child('members').child(auth.uid).child('key').val()==$k||(!data.exists()&&newData.child('from').val()==root.child('members').child(auth.uid).child('key').val()&&(root.child('members').child(auth.uid).child('role').val()=='admin'||root.child('members').child(auth.uid).child('perms').child('mail').val()==1)))"
+    }
+   }
+  },
+  "sent": {
+   "$k": {
+    ".read": "(root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('key').val()==$k)",
+    ".write": "(root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('key').val()==$k)&&(root.child('members').child(auth.uid).child('role').val()=='admin'||root.child('members').child(auth.uid).child('perms').child('mail').val()==1)"
+   }
+  },
+  "files": {
+   "$id": {
+    ".read": "root.child('members').child(auth.uid).exists()",
+    ".write": "root.child('members').child(auth.uid).exists()&&(!data.exists()||root.child('members').child(auth.uid).child('role').val()=='admin')",
+    ".validate": "newData.hasChildren(['n','t','d'])&&newData.child('d').val().length<4200000"
+   }
+  }
+ }
+}

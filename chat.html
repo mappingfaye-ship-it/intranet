@@ -1,14 +1,25 @@
 <!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Chartreuse"><meta name="theme-color" content="#0b0b14"><link rel="stylesheet" href="style.css"><script>document.documentElement.dataset.theme=localStorage.theme||"sombre"</script><title>Chat · Chartreuse</title></head><body>
-<main><h1 class="grad">Chat</h1><p class="sub">Photos et PDF acceptés (📎).</p>
-<div class="chat" id="m"></div><small class="mu" id="cn"></small><div class="send"><label class="ib">📎<input type="file" id="cf" hidden accept="image/*,.pdf,.docx,.xlsx,.pptx"></label><textarea id="t" rows="1" placeholder="Message…"></textarea><button id="sb" onclick="send()">➤</button></div></main>
+<main><h1 class="grad">Messages</h1><div class="chips" id="th"></div>
+<div class="chat" id="m"></div><small class="mu" id="cn"></small>
+<div class="gifp" id="gp" hidden><input id="gq" placeholder="Chercher un GIF…" oninput="gs()"><div id="gg"></div></div>
+<div class="send"><label class="ib">📎<input type="file" id="cf" hidden></label><button class="ib" onclick="gif()">GIF</button><textarea id="t" rows="1" placeholder="Message…"></textarea><button id="sb" onclick="send()">➤</button></div></main>
 <script src="config.js"></script><script src="data.js"></script><script src="auth.js"></script><script>
-let me,first=true,CH={},pend=null;
-boot("c","chat").then(s=>{me=s;DB.watch("chat",draw,2000)});
-function draw(o){CH=o||{};const a=Object.entries(CH).sort((x,y)=>x[1].ts-y[1].ts).slice(-150),near=m.scrollHeight-m.scrollTop-m.clientHeight<90;
-m.innerHTML=a.map(([id,v])=>`<div class="msg ${v.u==me.name?"me":""}"><small>${esc(v.u)} · ${new Date(v.ts).toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}${me.role=="admin"?` <a href="#" onclick="rm('${id}');return false">✕</a>`:""}</small>${esc(v.t).replace(/\n/g,"<br>")}${attHTML(A(v))}</div>`).join("")||'<p class="mu">Aucun message. Lance la conversation !</p>';
-if(near||first){m.scrollTop=m.scrollHeight}hydrate(m).then(()=>{if(near||first)m.scrollTop=m.scrollHeight;first=false});unread("c")}
-cf.onchange=()=>{pend=cf.files[0]||null;cn.textContent=pend?"📎 "+pend.name:""};
-async function send(){const x=t.value.trim();if(!x&&!pend)return;sb.disabled=true;try{const v={u:me.name,t:x,ts:Date.now()};if(pend)v.att=[await upFile(pend)];await DB.put("chat/"+DB.id(),v);t.value="";pend=null;cf.value="";cn.textContent="";first=true;draw(await DB.get("chat"))}catch(e){alert(e.message)}sb.disabled=false}
-async function rm(id){A(CH[id]).forEach(i=>DB.del("files/"+i));await DB.del("chat/"+id);draw(await DB.get("chat"))}
-t.addEventListener("keydown",e=>{if(e.key=="Enter"&&!e.shiftKey&&innerWidth>700){e.preventDefault();send()}});
+const $=i=>document.getElementById(i);let me,path="chat",first=true,pend=null,CH={};
+boot("c","chat").then(async s=>{me=s;await users();chips();pick("chat");setInterval(tick,2000);setInterval(chips,9000)});
+function chips(){$("th").innerHTML=`<button class="chip ${path=="chat"?"on":""}" onclick="pick('chat')">💬 Général${UNR.chat?'<b class="dot" style="display:block"></b>':""}</button>`+Object.entries(USR).filter(([k,x])=>k!=me.key&&(x.role=="admin"||(x.perms||{}).chat)).map(([k,x])=>{const p="dm/"+pair(me.key,k);return `<button class="chip ${path==p?"on":""}" onclick="pick('${p}')">🔒 ${esc(x.name)}${UNR[p]?'<b class="dot" style="display:block"></b>':""}</button>`}).join("")}
+function pick(p){path=p;first=true;tick.l=null;$("m").innerHTML="";chips();tick()}
+async function tick(){if(!me)return;const p=path;try{const o=await DB.last(p,150);if(p!=path)return;const s=JSON.stringify(o);if(s!==tick.l){tick.l=s;draw(o)}}catch(e){}}
+function draw(o){CH=o||{};const a=Object.entries(CH).sort((x,y)=>x[1].ts-y[1].ts),m=$("m"),near=m.scrollHeight-m.scrollTop-m.clientHeight<90;
+m.innerHTML=a.map(([id,v])=>{const tx=(v.t||"").trim(),only=tx&&(tx.match(MURL)||[])[0]==tx,can=v.k==me.key||(me.role=="admin"&&path=="chat");
+return `<div class="msg ${v.k==me.key?"me":""}"><small>${esc(v.u)} · ${new Date(v.ts).toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}${can?` <a href="#" onclick="rm('${id}');return false">✕</a>`:""}</small>${only?"":esc(tx).replace(/\n/g,"<br>")}${autoMedia(tx)}${attHTML(A(v))}</div>`}).join("")||'<p class="mu">Aucun message. Lance la conversation !</p>';
+if(near||first)m.scrollTop=m.scrollHeight;hydrate(m).then(()=>{if(near||first)m.scrollTop=m.scrollHeight;first=false});
+const seen=JSON.parse(localStorage.seen||"{}");seen[path]=Math.max(Date.now(),...a.map(x=>x[1].ts));localStorage.seen=JSON.stringify(seen);UNR[path]=false;chips();unread()}
+$("cf").onchange=()=>{pend=$("cf").files[0]||null;$("cn").textContent=pend?"📎 "+pend.name:""};
+async function post(v){await DB.put(`${path}/${DB.id()}`,{u:me.name,k:me.key,ts:Date.now(),...v});first=true;tick.l=null;tick()}
+async function send(){const x=$("t").value.trim();if(!x&&!pend)return;$("sb").disabled=true;try{const v={t:x};if(pend)v.att=[await upFile(pend)];await post(v);$("t").value="";pend=null;$("cf").value="";$("cn").textContent=""}catch(e){alert(e.message)}$("sb").disabled=false}
+async function rm(id){await DB.del(`${path}/${id}`);tick.l=null;tick()}
+$("t").addEventListener("keydown",e=>{if(e.key=="Enter"&&!e.shiftKey&&innerWidth>700){e.preventDefault();send()}});
+function gif(){if(!CONFIG.giphy){const u=prompt("Colle un lien de GIF (giphy, tenor, .gif…) :");if(u)post({t:u.trim()});return}$("gp").hidden=!$("gp").hidden;if(!$("gp").hidden)gs()}
+let gt;function gs(){clearTimeout(gt);gt=setTimeout(async()=>{const q=$("gq").value.trim(),u=q?`search?q=${encodeURIComponent(q)}&`:"trending?";try{const j=await(await fetch(`https://api.giphy.com/v1/gifs/${u}api_key=${CONFIG.giphy}&limit=18&rating=pg-13`)).json();$("gg").innerHTML=j.data.map(g=>`<img src="${g.images.fixed_height_small.url}" onclick="pg('${g.images.downsized_medium.url}')">`).join("")}catch(e){$("gg").textContent="GIF indisponibles"}},300)}
+function pg(u){$("gp").hidden=true;post({t:u})}
 </script></body></html>
