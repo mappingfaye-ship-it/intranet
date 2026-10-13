@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Maintenance du site — À tout de suite !</title>
+<style>
+:root{--blue:#4285f4;--ink:#1f2937;--muted:#5d6b80;--panel:#f1f7ff;--line:#dce8f8}
+*{box-sizing:border-box}body{margin:0;background:#fff;color:var(--ink);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+main{max-width:1100px;margin:auto;padding:20px}
+.hero{display:grid;grid-template-columns:1.3fr .7fr;align-items:center;gap:24px;background:linear-gradient(135deg,#eff6ff,#f8fbff);border-radius:24px;padding:clamp(24px,5vw,54px);overflow:hidden}
+.kicker{color:var(--blue);font-weight:750;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
+h1{font-size:clamp(2rem,4.5vw,3.5rem);line-height:1.08;letter-spacing:-.04em;margin:.5rem 0 1rem}
+p{color:var(--muted)}.hero p{font-size:1.1rem;max-width:600px}.thanks{color:var(--blue);font-weight:700}
+.maintenance-art{font-size:8rem;text-align:center;filter:drop-shadow(0 10px 10px #9bb5d455)}
+.section-head{text-align:center;padding:30px 10px 18px}.section-head h2{font-size:clamp(1.5rem,3vw,2.2rem);margin:0;color:#203a5c}.section-head p{margin:.4rem 0}
+.game-card{border:1px solid var(--line);border-radius:18px;padding:18px;background:#fff;box-shadow:0 5px 20px #17365d08}
+.game-card h3{margin:0 0 4px}.game-card p{margin:0 0 12px;font-size:.95rem}
+.game-layout{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+canvas{width:100%;height:auto;display:block;border:1px solid #e5e7eb;border-radius:12px;background:#fff}
+.controls{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px;align-items:center}
+button{border:0;border-radius:999px;padding:10px 16px;background:var(--blue);color:white;font-weight:700;cursor:pointer}
+button:hover{filter:brightness(.95)}button.secondary{background:#e8f0fe;color:#174ea6}
+.status{font-size:.9rem;color:var(--muted);margin-left:auto}
+kbd{background:#eef2f7;border:1px solid #d5dce5;border-radius:5px;padding:2px 6px;color:#334155}
+.other-games{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:18px}
+.game-icon{font-size:2rem;margin-bottom:8px}
+footer{text-align:center;border-top:1px solid var(--line);margin-top:30px;padding:22px;color:#778399;font-size:.9rem}
+@media(max-width:760px){main{padding:12px}.hero{grid-template-columns:1fr}.maintenance-art{font-size:5rem;order:-1}.game-layout{grid-template-columns:1fr}.other-games{grid-template-columns:1fr}.status{margin-left:0;width:100%}}
+</style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <div>
+      <div class="kicker">Petite pause technique</div>
+      <h1>Le site est en maintenance.</h1>
+      <p>Nous effectuons quelques améliorations pour vous proposer une meilleure expérience. Le site sera de retour dès que possible.</p>
+      <p class="thanks">Merci pour votre patience ! 💙</p>
+    </div>
+    <div class="maintenance-art" aria-hidden="true">🛠️ 🤖</div>
+  </section>
+
+  <section class="section-head">
+    <h2>En attendant, on joue ? 🎮</h2>
+    <p>Un petit jeu pour patienter. Pas besoin de télécharger quoi que ce soit !</p>
+  </section>
+
+  <section class="game-layout">
+    <article class="game-card">
+      <h3>🦖 Dino — évite les obstacles !</h3>
+      <p>Appuie sur <kbd>Espace</kbd>, <kbd>↑</kbd> ou touche le jeu pour sauter. Évite les cactus et bats ton record.</p>
+      <canvas id="game" width="720" height="220" aria-label="Jeu du dinosaure"></canvas>
+      <div class="controls">
+        <button id="start">Jouer / recommencer</button>
+        <button id="jump" class="secondary">Sauter ⬆</button>
+        <span class="status" id="status">Prêt ? Appuie sur Jouer !</span>
+      </div>
+    </article>
+    <article class="game-card">
+      <h3>🧠 Pause détente</h3>
+      <p>Profite de cette petite pause : respire, étire-toi et reviens dans quelques instants.</p>
+      <div style="background:#f5f9ff;border-radius:12px;padding:20px;text-align:center">
+        <div style="font-size:3.4rem" id="emoji">🌤️</div>
+        <strong id="breathTitle">Prends une grande inspiration</strong>
+        <p id="breathText">Inspire doucement… puis expire lentement.</p>
+        <button class="secondary" id="breath">Lancer une pause de 20 s</button>
+      </div>
+    </article>
+  </section>
+
+  <section class="other-games">
+    <article class="game-card"><div class="game-icon">🐍</div><h3>Snake</h3><p>Un grand classique : guide le serpent et attrape les points.</p><button class="secondary" onclick="alert('Astuce : fais une petite pause et reviens bientôt pour découvrir d’autres jeux !')">Bientôt disponible</button></article>
+    <article class="game-card"><div class="game-icon">🧱</div><h3>Casse-briques</h3><p>Fais rebondir la balle et casse toutes les briques.</p><button class="secondary" onclick="alert('Astuce : fais une petite pause et reviens bientôt pour découvrir d’autres jeux !')">Bientôt disponible</button></article>
+    <article class="game-card"><div class="game-icon">🎨</div><h3>Coin créatif</h3><p>Imagine ce que tu aimerais voir sur le site après la maintenance.</p><button class="secondary" onclick="alert('À toi d’imaginer : quelles couleurs et quelles nouveautés aimerais-tu ?')">Trouver une idée</button></article>
+  </section>
+  <footer>🔧 Le site revient bientôt. Merci de votre compréhension — et bonne partie !</footer>
+</main>
+<script>
+(() => {
+ const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+ const status=document.getElementById('status'),startBtn=document.getElementById('start'),jumpBtn=document.getElementById('jump');
+ let running=false,over=false,frame=0,score=0,best=Number(localStorage.getItem('maintenanceDinoBest')||0),speed=5,player,obstacles=[],raf=0;
+ function reset(){cancelAnimationFrame(raf);frame=0;score=0;speed=5;over=false;running=true;player={x:65,y:158,w:34,h:38,vy:0,ground:158};obstacles=[];status.textContent='Score : 0 · Record : '+best;loop();}
+ function drawDino(x,y){ctx.fillStyle='#334155';ctx.fillRect(x+7,y+8,22,25);ctx.fillRect(x+17,y,17,15);ctx.fillStyle='#fff';ctx.fillRect(x+27,y+4,4,4);ctx.fillStyle='#334155';ctx.fillRect(x+1,y+17,9,7);ctx.fillRect(x+8,y+31,7,7);ctx.fillRect(x+23,y+31,7,7);}
+ function drawCactus(o){ctx.fillStyle='#16834a';ctx.fillRect(o.x,o.y,o.w,o.h);ctx.fillRect(o.x-7,o.y+10,8,6);ctx.fillRect(o.x-7,o.y+10,5,15);ctx.fillRect(o.x+o.w-1,o.y+18,8,6);ctx.fillRect(o.x+o.w+3,o.y+18,5,13);}
+ function paint(){
+   ctx.clearRect(0,0,canvas.width,canvas.height);
+   ctx.fillStyle='#f8fafc';ctx.fillRect(0,0,canvas.width,canvas.height);
+   ctx.fillStyle='#d8e1eb';ctx.fillRect(0,196,canvas.width,2);
+   for(let i=0;i<6;i++){ctx.fillStyle='#e7edf4';ctx.fillRect((i*137-frame*.7%137),35+(i%3)*22,28,3);}
+   drawDino(player.x,player.y);
+   obstacles.forEach(drawCactus);
+   ctx.fillStyle='#475569';ctx.font='bold 18px system-ui';ctx.fillText(''+Math.floor(score),canvas.width-75,28);
+   if(!running){ctx.fillStyle='#334155';ctx.font='bold 22px system-ui';ctx.textAlign='center';ctx.fillText(over?'Partie terminée !':'Prêt à jouer ?',canvas.width/2,88);ctx.font='15px system-ui';ctx.fillText(over?'Clique sur « Jouer / recommencer » pour retenter.':'Appuie sur Jouer puis saute les cactus.',canvas.width/2,116);ctx.textAlign='left';}
+ }
+ function jump(){if(!running){if(!over)reset();return;}if(player.y>=player.ground-1)player.vy=-12;}
+ function loop(){
+   if(!running){paint();return;}
+   frame++;score+=.12;speed=5+Math.min(score/100,5);
+   player.y+=player.vy;player.vy+=.58;if(player.y>player.ground){player.y=player.ground;player.vy=0;}
+   if(frame%Math.max(42,Math.floor(88-score/8))===0)obstacles.push({x:canvas.width+5,y:164,w:18+Math.random()*10,h:32+Math.random()*16});
+   obstacles.forEach(o=>o.x-=speed);obstacles=obstacles.filter(o=>o.x+o.w>0);
+   for(const o of obstacles){if(player.x+player.w-5>o.x&&player.x+6<o.x+o.w&&player.y+player.h-4>o.y){running=false;over=true;best=Math.max(best,Math.floor(score));localStorage.setItem('maintenanceDinoBest',best);status.textContent='Score : '+Math.floor(score)+' · Record : '+best;paint();return;}}
+   status.textContent='Score : '+Math.floor(score)+' · Record : '+best;paint();raf=requestAnimationFrame(loop);
+ }
+ startBtn.addEventListener('click',reset);jumpBtn.addEventListener('click',jump);canvas.addEventListener('pointerdown',jump);
+ document.addEventListener('keydown',e=>{if(e.code==='Space'||e.code==='ArrowUp'){e.preventDefault();jump();}});
+ paint();
+ const breath=document.getElementById('breath'),bt=document.getElementById('breathTitle'),bx=document.getElementById('breathText'),em=document.getElementById('emoji');
+ let breathTimer=null;
+ breath.addEventListener('click',()=>{if(breathTimer)clearInterval(breathTimer);let n=20;const update=()=>{if(n<=0){clearInterval(breathTimer);breathTimer=null;bt.textContent='Bien joué !';bx.textContent='Tu peux reprendre tranquillement.';em.textContent='✨';breath.textContent='Recommencer';return;}bt.textContent=n>10?'Inspire doucement…':'Expire lentement…';bx.textContent='Encore '+n+' seconde'+(n>1?'s':'')+'.';em.textContent=n>10?'🌬️':'🌿';breath.textContent='Pause en cours…';n--;};update();breathTimer=setInterval(update,1000);});
+})();
+</script>
+</body>
+</html>
