@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Chartreuse"><meta name="theme-color" content="#0b0b14"><link rel="stylesheet" href="style.css"><script>document.documentElement.dataset.theme=localStorage.theme||"sombre"</script><title>Connexion · Chartreuse</title>
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Chartreuse"><meta name="theme-color" content="#0b0b14"><link rel="stylesheet" href="style.css?v=4"><script>document.documentElement.dataset.theme=localStorage.theme||"sombre";try{const p=JSON.parse(localStorage.prefs||"{}"),r=document.documentElement.style;if(p.a)r.setProperty("--c1",p.a);if(p.b)r.setProperty("--c2",p.b);if(p.f)r.fontSize=p.f+"px"}catch(e){};try{const p=JSON.parse(localStorage.prefs||"{}"),r=document.documentElement.style;if(p.a)r.setProperty("--c1",p.a);if(p.b)r.setProperty("--c2",p.b);if(p.f)r.fontSize=p.f+"px"}catch(e){};try{const p=JSON.parse(localStorage.prefs||"{}"),r=document.documentElement.style;if(p.a)r.setProperty("--c1",p.a);if(p.b)r.setProperty("--c2",p.b);if(p.f)r.fontSize=p.f+"px"}catch(e){};try{const p=JSON.parse(localStorage.prefs||"{}"),r=document.documentElement.style;if(p.a)r.setProperty("--c1",p.a);if(p.b)r.setProperty("--c2",p.b);if(p.f)r.fontSize=p.f+"px"}catch(e){}</script><title>Connexion · Chartreuse</title>
 <style>
 .w{min-height:100vh;min-height:100dvh;display:grid;place-items:center;padding:20px}
 .box{width:100%;max-width:340px;background:var(--card);border:1px solid var(--bd);border-radius:24px;padding:26px 22px;text-align:center}
@@ -10,25 +10,32 @@
 .pad button{min-height:58px;border-radius:16px;border:1px solid var(--bd);background:var(--hi);color:var(--tx);font-size:1.5rem;cursor:pointer;user-select:none;-webkit-user-select:none}
 .pad button:active{transform:scale(.94);background:var(--c1);color:var(--on)}.pad .s{font-size:1.1rem;color:var(--mu)}
 .err{color:var(--er);min-height:20px;font-size:.9rem;margin-top:12px}
-.seg{display:none;gap:8px;margin-bottom:6px}.seg button{flex:1;min-height:44px;border-radius:12px;border:1px solid var(--bd);background:var(--hi);color:var(--tx);font:inherit;cursor:pointer}.seg button.on{background:linear-gradient(90deg,var(--c1),var(--c2));color:var(--on);font-weight:700}
-.lnk{background:none;border:0;color:var(--mu);text-decoration:underline;margin-top:14px;min-height:44px;font:inherit;cursor:pointer}
+.seg{display:none;gap:8px;margin-bottom:8px}.seg button{flex:1;min-height:44px;border-radius:12px;border:1px solid var(--bd);background:var(--hi);color:var(--tx);font:inherit;cursor:pointer}
+.lnk{background:none;border:0;color:var(--mu);text-decoration:underline;margin-top:8px;min-height:40px;font:inherit;cursor:pointer;display:block;width:100%}
 .shake{animation:sh .4s}@keyframes sh{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+input{width:100%;padding:12px 13px;border-radius:12px;border:1px solid var(--bd);background:var(--inp);color:var(--tx);font:inherit;font-size:16px;margin-bottom:10px;text-align:center}
+#gbtn{display:flex;justify-content:center;margin-top:12px}
 </style></head><body><div class="w"><div class="box" id="box">
-<h1 class="grad">🎬 Mapping Chartreuse</h1><p id="hint">Identifiant + code à 6 chiffres</p>
+<h1 class="grad">🎬 Mapping Chartreuse</h1><p id="hint"></p>
 <input id="usr" placeholder="Identifiant" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false">
-<div class="seg" id="seg"><button class="on" data-w="admin">Admin</button><button data-w="backup">Backup</button></div>
-<div class="dots" id="dots"></div><div class="pad" id="pad"></div><div class="err" id="err"></div>
-<button class="lnk" id="adm" onclick="setMode(mode=='admin'?'user':'admin')">🔐 Continuer en tant qu'admin</button></div></div>
-<script src="config.js?v=3"></script><script src="data.js?v=3"></script><script src="auth.js?v=3"></script><script>
+<div class="seg" id="seg"><button data-w="admin">Admin</button><button data-w="backup">Backup</button></div>
+<div class="dots" id="dots"></div><div class="pad" id="pad"></div><div class="err" id="err"></div><div id="gbtn"></div>
+<button class="lnk" id="adm" onclick="setMode(mode=='admin'?'user':'admin')"></button>
+<button class="lnk" onclick="forgot()">Code oublié ?</button><a class="lnk" href="contact.html" style="text-decoration:underline;color:var(--mu)">📬 Nous contacter</a></div></div>
+<script src="config.js?v=4"></script><script src="data.js?v=4"></script><script src="auth.js?v=4"></script><script>
 if(localStorage.sess&&Auth.s)location.replace("accueil.html");
-const $=i=>document.getElementById(i);let pin="",busy=false,mode="user",L=6,who="admin";
-if(!DB.ok)$("err").textContent=!CONFIG.apiKey?"apiKey vide : config.js ancien en cache ?":"url vide dans config.js";
+const $=i=>document.getElementById(i);let pin="",busy=false,mode="user",L=6;
 $("pad").innerHTML=["1","2","3","4","5","6","7","8","9","C","0","⌫"].map(k=>`<button class="${k=="C"||k=="⌫"?"s":""}" onclick="press('${k}')">${k}</button>`).join("");
-document.querySelectorAll("#seg button").forEach(b=>b.onclick=()=>{who=b.dataset.w;document.querySelectorAll("#seg button").forEach(x=>x.className=x==b?"on":"")});
-function setMode(m){mode=m;L=m=="admin"?10:6;pin="";$("dots").innerHTML="<i></i>".repeat(L);draw();$("usr").style.display=m=="admin"?"none":"";$("seg").style.display=m=="admin"?"flex":"none";$("hint").textContent=m=="admin"?"Accès administrateur : code à 10 chiffres":"Identifiant + code à 6 chiffres";$("adm").textContent=m=="admin"?"← Retour connexion membre":"🔐 Continuer en tant qu'admin";$("err").textContent=""}
+document.querySelectorAll("#seg button").forEach(b=>b.onclick=()=>$("usr").value=b.dataset.w);
+function setMode(m){mode=m;L=m=="admin"?10:6;pin="";$("dots").innerHTML="<i></i>".repeat(L);draw();$("seg").style.display=m=="admin"?"flex":"none";if(m=="admin"&&!$("usr").value)$("usr").value="admin";$("hint").textContent=m=="admin"?"Accès administrateur : identifiant + code à 10 chiffres":"Identifiant + code à 6 chiffres";$("adm").textContent=m=="admin"?"← Retour connexion membre":"🔐 Continuer en tant qu'admin";$("err").textContent=""}
 const draw=()=>[...$("dots").children].forEach((i,n)=>i.className=n<pin.length?"f":"");
 function press(k){if(busy)return;$("err").textContent="";navigator.vibrate&&navigator.vibrate(8);if(k=="C")pin="";else if(k=="⌫")pin=pin.slice(0,-1);else if(pin.length<L)pin+=k;draw();if(pin.length==L)go()}
-async function go(){busy=true;try{await login(mode=="admin"?who:$("usr").value,pin);location.href="accueil.html";return}catch(e){$("err").textContent=e.message;$("box").classList.remove("shake");void $("box").offsetWidth;$("box").classList.add("shake");pin="";draw()}busy=false}
+function fail(m){$("err").textContent=m;$("box").classList.remove("shake");void $("box").offsetWidth;$("box").classList.add("shake");pin="";draw()}
+async function go(){busy=true;try{await login($("usr").value,pin);location.href="accueil.html";return}catch(e){fail(e.message)}busy=false}
+async function forgot(){const k=prompt("Ton identifiant ?");if(!k)return;try{await DB.pubPut("resets/"+k.trim().toLowerCase().replace(/[^a-z0-9-]/g,""),{ts:Date.now()});$("err").style.color="var(--c2)";$("err").textContent="Demande envoyée aux admins ✅"}catch(e){$("err").textContent="Envoi impossible"}}
 setMode("user");
+if(!DB.ok)$("err").textContent=!CONFIG.apiKey?"apiKey vide : config.js ancien en cache ?":"url vide dans config.js";
+else DB.pub("maintenance").then(m=>{if(m&&m.on)$("err").textContent="🛠️ Maintenance en cours (admins seulement)"}).catch(()=>{});
+gsi($("gbtn"),async c=>{try{await googleLogin(c);location.href="accueil.html"}catch(e){fail(e.message)}});
 document.addEventListener("keydown",e=>{if(document.activeElement.id=="usr")return;if(/^\d$/.test(e.key))press(e.key);else if(e.key=="Backspace")press("⌫")});
 </script></body></html>

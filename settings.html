@@ -1,0 +1,23 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Chartreuse"><meta name="theme-color" content="#0b0b14"><link rel="stylesheet" href="style.css?v=4"><script>document.documentElement.dataset.theme=localStorage.theme||"sombre";try{const p=JSON.parse(localStorage.prefs||"{}"),r=document.documentElement.style;if(p.a)r.setProperty("--c1",p.a);if(p.b)r.setProperty("--c2",p.b);if(p.f)r.fontSize=p.f+"px"}catch(e){};try{const p=JSON.parse(localStorage.prefs||"{}"),r=document.documentElement.style;if(p.a)r.setProperty("--c1",p.a);if(p.b)r.setProperty("--c2",p.b);if(p.f)r.fontSize=p.f+"px"}catch(e){};try{const p=JSON.parse(localStorage.prefs||"{}"),r=document.documentElement.style;if(p.a)r.setProperty("--c1",p.a);if(p.b)r.setProperty("--c2",p.b);if(p.f)r.fontSize=p.f+"px"}catch(e){}</script><title>Paramètres · Chartreuse</title></head><body>
+<main><h1 class="grad">Paramètres</h1><p class="sub" id="who"></p>
+<section class="card"><h2>👤 Profil</h2><p class="mu" id="inf"></p><p class="mu" style="margin:8px 0 6px">E-mail (notifications, nouveau code) :</p><input id="em" type="email" placeholder="ton@email.com"><button onclick="saveEm()">Enregistrer l'e-mail</button></section>
+<section class="card"><h2>🔑 Code</h2><p class="mu" style="margin-bottom:10px" id="pn"></p><button onclick="chPin()">Changer mon code</button></section>
+<section class="card"><h2>🔗 Connexion Google</h2><p class="mu" style="margin-bottom:10px" id="gt"></p><div id="gb"></div></section>
+<section class="card"><h2>🎨 Apparence</h2><select id="th" onchange="setT()"></select><p class="mu" style="margin-bottom:6px">Couleurs d'accent</p><div style="display:flex;gap:10px;margin-bottom:10px"><input type="color" id="ca" onchange="savePrefs()" style="width:60px;padding:2px"><input type="color" id="cb" onchange="savePrefs()" style="width:60px;padding:2px"></div>
+<p class="mu" style="margin-bottom:6px">Taille du texte</p><select id="fs" onchange="savePrefs()"><option value="">Normale</option><option value="14">Petite</option><option value="18">Grande</option><option value="20">Très grande</option></select><button class="g" onclick="resetP()">Réinitialiser l'apparence</button></section>
+<section class="card"><h2>🔒 Session</h2><div class="chk"><label><input type="checkbox" id="kp" onchange="localStorage.keep=this.checked?1:0"> Rester connecté sur cet appareil</label></div><button class="d" onclick="logout()">Se déconnecter</button></section>
+<section class="card"><h2>📬 Aide</h2><a href="contact.html" style="color:var(--c2)">Page de contact</a></section></main>
+<script src="config.js?v=4"></script><script src="data.js?v=4"></script><script src="auth.js?v=4"></script><script>
+const $=i=>document.getElementById(i);
+boot("s").then(async s=>{$("who").textContent=`${s.name} · ${{admin:"Administrateur",editeur:"Éditeur"}[s.role]||"Lecteur"}`;
+$("inf").textContent="Dernière connexion précédente : "+(localStorage.prevSeen?new Date(+localStorage.prevSeen).toLocaleString("fr-FR"):"première connexion");
+$("pn").textContent=s.key=="backup"?"Le code du compte Backup est inchangeable (sécurité).":`Code de ${s.role=="admin"?10:6} chiffres.`;
+try{$("em").value=await DB.get("emails/"+s.key)||""}catch(e){}
+$("th").innerHTML=TH.map(t=>`<option value="${t[0]}">${t[1]} ${t[0]}</option>`).join("");$("th").value=cur();
+const p=JSON.parse(localStorage.prefs||"{}");$("ca").value=p.a||"#7c5cff";$("cb").value=p.b||"#22d3ee";$("fs").value=p.f||"";$("kp").checked=localStorage.keep!="0";
+if(CONFIG.googleClientId){$("gt").textContent="Lie ton compte Google : tu pourras ensuite te connecter avec un seul clic, sans taper ton code.";gsi($("gb"),async c=>{try{await linkGoogle(c);alert("Compte Google lié ✅")}catch(e){alert(e.message)}})}else $("gt").textContent="Non configuré par l'administrateur (voir config.html)."});
+async function saveEm(){try{await DB.put("emails/"+S().key,$("em").value.trim());alert("Enregistré ✅")}catch(e){alert(e.message)}}
+function setT(){setTheme($("th").value);location.reload()}
+function savePrefs(){const p={a:$("ca").value,b:$("cb").value,f:$("fs").value};localStorage.prefs=JSON.stringify(p);const r=document.documentElement.style;r.setProperty("--c1",p.a);r.setProperty("--c2",p.b);r.fontSize=p.f?p.f+"px":""}
+function resetP(){localStorage.removeItem("prefs");localStorage.removeItem("theme");location.reload()}
+</script></body></html>

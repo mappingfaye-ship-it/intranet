@@ -1,0 +1,26 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Chartreuse"><meta name="theme-color" content="#0b0b14"><link rel="stylesheet" href="style.css?v=4"><script>document.documentElement.dataset.theme=localStorage.theme||"sombre";try{const p=JSON.parse(localStorage.prefs||"{}"),r=document.documentElement.style;if(p.a)r.setProperty("--c1",p.a);if(p.b)r.setProperty("--c2",p.b);if(p.f)r.fontSize=p.f+"px"}catch(e){};try{const p=JSON.parse(localStorage.prefs||"{}"),r=document.documentElement.style;if(p.a)r.setProperty("--c1",p.a);if(p.b)r.setProperty("--c2",p.b);if(p.f)r.fontSize=p.f+"px"}catch(e){}</script><title>Document · Chartreuse</title></head><body>
+<main style="max-width:900px"><input id="ti" style="font-size:1.3rem;font-weight:700" placeholder="Titre">
+<div class="tb noprint" id="tb">
+<button onmousedown="event.preventDefault()" onclick="c('undo')">↶</button><button onmousedown="event.preventDefault()" onclick="c('redo')">↷</button>
+<select id="bk" onchange="c('formatBlock',this.value);this.value=''"><option value="">Style</option><option value="P">Texte</option><option value="H1">Titre 1</option><option value="H2">Titre 2</option><option value="H3">Titre 3</option><option value="BLOCKQUOTE">Citation</option></select>
+<select id="sz" onchange="c('fontSize',this.value);this.value=''"><option value="">Taille</option><option value="2">Petit</option><option value="3">Normal</option><option value="5">Grand</option><option value="6">Très grand</option></select>
+<button onmousedown="event.preventDefault()" onclick="c('bold')"><b>G</b></button><button onmousedown="event.preventDefault()" onclick="c('italic')"><i>I</i></button><button onmousedown="event.preventDefault()" onclick="c('underline')"><u>S</u></button><button onmousedown="event.preventDefault()" onclick="c('strikeThrough')"><s>B</s></button>
+<input type="color" value="#000000" title="Couleur du texte" onchange="c('foreColor',this.value)"><input type="color" value="#ffff00" title="Surlignage" onchange="c('hiliteColor',this.value)">
+<button onmousedown="event.preventDefault()" onclick="c('justifyLeft')">⇤</button><button onmousedown="event.preventDefault()" onclick="c('justifyCenter')">↔</button><button onmousedown="event.preventDefault()" onclick="c('justifyRight')">⇥</button>
+<button onmousedown="event.preventDefault()" onclick="c('insertUnorderedList')">• Liste</button><button onmousedown="event.preventDefault()" onclick="c('insertOrderedList')">1. Liste</button>
+<button onmousedown="event.preventDefault()" onclick="lk()">🔗</button><button onmousedown="event.preventDefault()" onclick="tbl()">▦</button><button onclick="$('im').click()">🖼️</button><input type="file" id="im" accept="image/*" hidden>
+<button onmousedown="event.preventDefault()" onclick="c('insertHorizontalRule')">―</button><button onmousedown="event.preventDefault()" onclick="c('removeFormat')">⌫ Format</button>
+<button onclick="exp()">⬇️ .doc</button><button onclick="window.print()">🖨️ PDF</button></div>
+<div id="ed" contenteditable="true"></div><small class="mu noprint"><span id="st"></span> · <span id="wc"></span></small></main>
+<script src="config.js?v=4"></script><script src="data.js?v=4"></script><script src="auth.js?v=4"></script><script src="office.js?v=4"></script><script>
+const $=i=>document.getElementById(i);let me,id,M,ro=false;
+const c=(a,v)=>{if(!ro){document.execCommand(a,false,v||null);sv()}};
+const sv=debounce(()=>ofSave(id,{...M,t:$("ti").value||M.t},{h:clean($("ed").innerHTML)}));
+boot("o","office").then(async s=>{me=s;id=new URLSearchParams(location.search).get("id");const r=await ofLoad(id);if(!r){document.querySelector("main").innerHTML='<p class="mu">Document introuvable. <a href="office.html" style="color:var(--c2)">Retour</a></p>';return}M=r.m;$("ti").value=M.t;$("ed").innerHTML=clean(r.c.h);ro=!canEd(M,me);if(ro){$("ed").contentEditable="false";$("tb").style.display="none";$("ti").disabled=true;stSet("Lecture seule")}wc()});
+$("ed").addEventListener("input",()=>{sv();wc()});$("ti").addEventListener("input",()=>{if(!ro)sv()});
+const wc=()=>$("wc").textContent=($("ed").innerText.trim().split(/\s+/).filter(Boolean).length)+" mots";
+function lk(){const u=prompt("Adresse du lien (https://…)");if(u&&/^https?:\/\//i.test(u))c("createLink",u)}
+function tbl(){const r=+prompt("Lignes ?",3),k=+prompt("Colonnes ?",3);if(!r||!k)return;c("insertHTML","<table>"+("<tr>"+"<td>&nbsp;</td>".repeat(k)+"</tr>").repeat(r)+"</table><p></p>")}
+$("im").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{c("insertImage",await shrink(f))}catch(x){alert("Image illisible")}e.target.value=""};
+function exp(){dlBlob(($("ti").value||"document")+".doc","application/msword","<html><head><meta charset='utf-8'></head><body>"+clean($("ed").innerHTML)+"</body></html>")}
+</script></body></html>

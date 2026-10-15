@@ -1,19 +1,21 @@
-# Installation sécurisée (Firebase Authentication + règles)
+# Mise à jour (version 4)
 
-## Pourquoi l'ancienne version était faille
-Les PIN étaient stockés en clair dans la base et la base était ouverte à tous : quiconque trouvait l'URL Firebase dans le code pouvait lire tous les PIN. Cette version n'a plus aucun PIN dans la base : les codes sont vérifiés par Firebase Authentication, et des règles serveur limitent ce que chacun peut lire ou écrire.
+1. **Règles Firebase** : remplace-les par le contenu de `firebase-rules.json` (Realtime Database > Règles > Publier). Obligatoire : il y a de nouveaux champs (rôles, drive, office, maintenance…).
+2. Envoie TOUS les fichiers sur GitHub (garde ton `config.js` ou régénère-le avec `config.html`).
+3. Ouvre `config.html` pour tester ta configuration (clé, authentification, base verrouillée).
+4. Première installation : ouvre `setup.html`, puis supprime-le du dépôt.
+   Déjà installé : rien à refaire, tes comptes restent valides. Les anciens « membre » sont des « lecteur ».
 
-## Étapes (≈10 min)
-1. **Supprime l'ancienne base** : Realtime Database > ⋮ > supprimer toutes les données (les anciens PIN y sont lisibles). Considère les anciens PIN comme compromis.
-2. **Authentication** > Méthode de connexion > active **E-mail/Mot de passe**.
-3. **Paramètres du projet** > Vos applications > ajoute une app Web (</>) et copie `apiKey`. Copie aussi l'URL de la Realtime Database.
-4. **Realtime Database > Règles** : colle le contenu de `firebase-rules.json` puis Publier.
-5. Remplis `config.js` (apiKey, url, et optionnellement la clé Giphy).
-6. Envoie tous les fichiers sur GitHub Pages, ouvre `setup.html`, choisis les codes Admin et Backup (10 chiffres). Les codes des 7 membres s'affichent une seule fois : note-les.
-7. **Supprime `setup.html`** du dépôt.
-8. Recommandé : Google Cloud Console > Identifiants > ta clé API > restrictions HTTP referrers = l'adresse de ton site.
+## Rôles
+- **Lecteur** : consulte, chat/mail/drive selon ses accès. **Éditeur** : ajoute nouvelles, événements, tâches, fichiers drive. **Admin** : tout.
+- Changer le rôle d'un compte demande un nouveau code (6 chiffres lecteur/éditeur, 10 chiffres admin) : plus de blocage à la connexion.
+- Le compte **Backup** est inchangeable (code, rôle, suppression bloqués par les règles).
 
-## Limites à connaître
-- Un code de 6 chiffres reste faible face à quelqu'un qui essaie des milliers de combinaisons ; Firebase limite les essais, mais utilise 10 chiffres pour les comptes sensibles.
-- Les messages privés sont invisibles pour les autres membres et pour l'admin du site, mais pas pour le propriétaire du projet Firebase.
-- Les fichiers sont stockés dans la base (max 3 Mo chacun).
+## Options à configurer (dans config.js, via config.html)
+- Google en un clic : ID client OAuth + origine autorisée.
+- E-mails (nouvelles, tâches, code oublié) : compte gratuit EmailJS.
+
+## Limites
+- Pas de « clé d'accès » (passkey) : impossible sans serveur. Utilise la connexion Google + le trousseau Apple/Google de ton téléphone.
+- Blocage d'IP « souple » (contournable par VPN) ; le blocage de compte, lui, est strict.
+- Fichiers stockés dans la base : 3 Mo max chacun.

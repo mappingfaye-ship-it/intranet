@@ -1,0 +1,48 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Chartreuse"><meta name="theme-color" content="#0b0b14"><link rel="stylesheet" href="style.css?v=4"><script>document.documentElement.dataset.theme=localStorage.theme||"sombre";try{const p=JSON.parse(localStorage.prefs||"{}"),r=document.documentElement.style;if(p.a)r.setProperty("--c1",p.a);if(p.b)r.setProperty("--c2",p.b);if(p.f)r.fontSize=p.f+"px"}catch(e){};try{const p=JSON.parse(localStorage.prefs||"{}"),r=document.documentElement.style;if(p.a)r.setProperty("--c1",p.a);if(p.b)r.setProperty("--c2",p.b);if(p.f)r.fontSize=p.f+"px"}catch(e){}</script><title>Tableur · Chartreuse</title></head><body>
+<main style="max-width:1100px"><input id="ti" style="font-size:1.3rem;font-weight:700" placeholder="Titre">
+<div class="tb noprint" id="tb"><input id="fx" placeholder="Sélectionne une cellule, tape une valeur ou =SUM(A1:A5)" style="flex:1;min-width:200px;background:var(--inp);margin:0">
+<button onclick="stl('b')"><b>G</b></button><button onclick="stl('al','l')">⇤</button><button onclick="stl('al','c')">↔</button><button onclick="stl('al','r')">⇥</button>
+<input type="color" value="#ffff00" title="Fond" onchange="stl('bg',this.value)"><input type="color" value="#ff0000" title="Texte" onchange="stl('c',this.value)">
+<button onclick="ROWS+=20;grid()">+20 lignes</button><button onclick="csvx()">⬇️ CSV</button><button onclick="$('ci').click()">⬆️ CSV</button><input type="file" id="ci" accept=".csv,text/csv" hidden></div>
+<div class="sheet" id="g"></div><small class="mu noprint"><span id="st"></span> · Fonctions : SUM AVERAGE MIN MAX COUNT COUNTA IF ROUND ABS SQRT POWER MOD INT CONCAT LEN UPPER LOWER AND OR NOT SUMIF COUNTIF TODAY NOW PI</small></main>
+<script src="config.js?v=4"></script><script src="data.js?v=4"></script><script src="auth.js?v=4"></script><script src="office.js?v=4"></script><script>
+const $=i=>document.getElementById(i);const COLS=20;let ROWS=50,D={cells:{},st:{}},sel="A1",me,id,M,ro=false,memo={},stack=new Set();
+const cn=i=>String.fromCharCode(65+i),pr=s=>{const x=/^([A-Z])(\d+)$/.exec(s);return x?[x[1].charCodeAt(0)-65,+x[2]-1]:null};
+const sv=debounce(()=>ofSave(id,{...M,t:$("ti").value||M.t},D));
+boot("o","office").then(async s=>{me=s;id=new URLSearchParams(location.search).get("id");const r=await ofLoad(id);if(!r){document.querySelector("main").innerHTML='<p class="mu">Introuvable.</p>';return}M=r.m;D={cells:r.c.cells||{},st:r.c.st||{}};$("ti").value=M.t;ro=!canEd(M,me);if(ro){$("tb").style.display="none";$("ti").disabled=true;stSet("Lecture seule")}
+const lr=Math.max(0,...Object.keys(D.cells).map(k=>+k.slice(1)));ROWS=Math.max(50,Math.ceil(lr/10)*10+10);grid();pick("A1")});
+$("ti").addEventListener("input",()=>{if(!ro)sv()});
+function cellVal(k){if(k in memo)return memo[k];if(stack.has(k))return"#CYCLE";stack.add(k);const raw=D.cells[k];let v;try{if(raw==null||raw==="")v=null;else if(String(raw)[0]=="=")v=evalF(String(raw).slice(1));else if(String(raw).trim()!==""&&!isNaN(raw))v=+raw;else v=String(raw)}catch(e){v=typeof e=="string"?e:"#ERR"}stack.delete(k);return memo[k]=v}
+function evalF(src){const T=[],re=/\s*(?:(\d+\.?\d*|\.\d+)|"((?:[^"]|"")*)"|([A-Za-z]\d+:[A-Za-z]\d+)|([A-Za-z_][A-Za-z0-9_.]*)(?=\s*\()|([A-Za-z]\d+)|(TRUE|FALSE)|(<=|>=|<>|[-+*\/^&=<>%(),;]))/y;let m,p=0;
+while(p<src.length){re.lastIndex=p;m=re.exec(src);if(!m){if(/^\s*$/.test(src.slice(p)))break;throw"#ERR"}p=re.lastIndex;if(m[1]!=null)T.push(["n",+m[1]]);else if(m[2]!=null)T.push(["s",m[2].replace(/""/g,'"')]);else if(m[3])T.push(["r",m[3].toUpperCase()]);else if(m[4])T.push(["f",m[4].toUpperCase()]);else if(m[5])T.push(["c",m[5].toUpperCase()]);else if(m[6])T.push(["b",m[6]=="TRUE"]);else T.push(["o",m[7]])}
+let i=0;const nx=()=>T[i++],isO=o=>T[i]&&T[i][0]=="o"&&T[i][1]==o,err=v=>typeof v=="string"&&v[0]=="#";
+const num=v=>{if(err(v))throw v;if(v==null||v==="")return 0;if(typeof v=="boolean")return +v;const n=+v;if(isNaN(n))throw"#VALUE";return n};
+const fl=a=>a.flat(Infinity);
+function match(v,c){if(typeof c=="string"){const m=/^(<=|>=|<>|<|>|=)?(.*)$/.exec(c),o=m[1]||"=",x=m[2],n=x!==""&&!isNaN(x)?+x:x,w=typeof v=="number"&&typeof n=="number"?v:String(v??"").toLowerCase(),y=typeof n=="number"?n:String(n).toLowerCase();return o=="="?w==y:o=="<>"?w!=y:o=="<"?w<y:o==">"?w>y:o=="<="?w<=y:w>=y}return v==c}
+function callF(n,a){const L=fl(a),N=()=>{L.forEach(v=>{if(err(v))throw v});return L.filter(v=>typeof v=="number")};
+switch(n){case"SUM":return N().reduce((x,y)=>x+y,0);case"AVERAGE":case"AVG":{const x=N();return x.length?x.reduce((p,q)=>p+q,0)/x.length:"#DIV/0"}case"MIN":{const x=N();return x.length?Math.min(...x):0}case"MAX":{const x=N();return x.length?Math.max(...x):0}case"COUNT":return N().length;case"COUNTA":return L.filter(v=>v!=null&&v!=="").length;
+case"IF":if(err(a[0]))return a[0];return a[0]?a[1]:(a.length>2?a[2]:false);case"ROUND":return +num(a[0]).toFixed(a[1]==null?0:num(a[1]));case"ABS":return Math.abs(num(a[0]));case"SQRT":{const x=num(a[0]);return x<0?"#NUM":Math.sqrt(x)}case"POWER":return Math.pow(num(a[0]),num(a[1]));case"MOD":return num(a[1])?num(a[0])%num(a[1]):"#DIV/0";case"INT":return Math.floor(num(a[0]));
+case"CONCAT":case"CONCATENATE":return L.join("");case"LEN":return String(a[0]??"").length;case"UPPER":return String(a[0]??"").toUpperCase();case"LOWER":return String(a[0]??"").toLowerCase();case"AND":return L.every(Boolean);case"OR":return L.some(Boolean);case"NOT":return !a[0];case"TODAY":return new Date().toISOString().slice(0,10);case"NOW":return new Date().toLocaleString("fr-FR");case"PI":return Math.PI;
+case"SUMIF":{const r=fl([a[0]]),s=a[2]?fl([a[2]]):r;return r.reduce((t,v,j)=>t+(match(v,a[1])&&typeof s[j]=="number"?s[j]:0),0)}case"COUNTIF":return fl([a[0]]).filter(v=>match(v,a[1])).length;default:return"#NAME"}}
+const ex=()=>cmp();
+function cmp(){let a=cat();while(T[i]&&T[i][0]=="o"&&["=","<>","<",">","<=",">="].includes(T[i][1])){const o=nx()[1],b=cat();a=o=="="?a==b:o=="<>"?a!=b:o=="<"?a<b:o==">"?a>b:o=="<="?a<=b:a>=b}return a}
+function cat(){let a=add();while(isO("&")){nx();a=String(a??"")+String(add()??"")}return a}
+function add(){let a=mul();while(isO("+")||isO("-")){const o=nx()[1],b=mul();a=o=="+"?num(a)+num(b):num(a)-num(b)}return a}
+function mul(){let a=pw();while(isO("*")||isO("/")){const o=nx()[1],b=pw();if(o=="*")a=num(a)*num(b);else a=num(b)==0?"#DIV/0":num(a)/num(b)}return a}
+function pw(){let a=un();while(isO("^")){nx();a=Math.pow(num(a),num(un()))}return a}
+function un(){if(isO("-")){nx();return -num(un())}if(isO("+")){nx();return num(un())}let a=prim();while(isO("%")){nx();a=num(a)/100}return a}
+function prim(){const t=nx();if(!t)throw"#ERR";switch(t[0]){case"n":case"s":case"b":return t[1];case"c":return cellVal(t[1]);
+case"r":{const[a,b]=t[1].split(":"),[c1,r1]=pr(a),[c2,r2]=pr(b),o=[];for(let r=Math.min(r1,r2);r<=Math.max(r1,r2);r++)for(let c=Math.min(c1,c2);c<=Math.max(c1,c2);c++)o.push(cellVal(cn(c)+(r+1)));return o}
+case"f":{nx();const args=[];if(!isO(")")){while(true){args.push(ex());if(isO(",")||isO(";"))nx();else break}}if(!isO(")"))throw"#ERR";nx();return callF(t[1],args)}
+case"o":if(t[1]=="("){const v=ex();if(!isO(")"))throw"#ERR";nx();return v}}throw"#ERR"}
+const v=ex();if(i<T.length)throw"#ERR";return Array.isArray(v)?v[0]:v}
+const disp=v=>v==null?"":typeof v=="number"?String(Math.round(v*1e10)/1e10):typeof v=="boolean"?(v?"VRAI":"FAUX"):String(v);
+function grid(){memo={};let h="<table><thead><tr><th></th>"+Array.from({length:COLS},(_,c)=>`<th>${cn(c)}</th>`).join("")+"</tr></thead><tbody>";
+for(let r=0;r<ROWS;r++){h+=`<tr><th>${r+1}</th>`;for(let c=0;c<COLS;c++){const k=cn(c)+(r+1),s=D.st[k]||{},v=cellVal(k);h+=`<td class="${k==sel?"on":""}" onclick="pick('${k}')" style="${s.b?"font-weight:700;":""}${s.bg?"background:"+s.bg+";":""}${s.c?"color:"+s.c+";":""}text-align:${s.al=="c"?"center":s.al=="r"||(typeof v=="number"&&!s.al)?"right":"left"}">${esc(disp(v))}</td>`}h+="</tr>"}$("g").innerHTML=h+"</tbody></table>"}
+function pick(k){commit();sel=k;$("fx").value=D.cells[k]||"";document.querySelectorAll(".sheet td.on").forEach(e=>e.classList.remove("on"));const td=[...document.querySelectorAll(".sheet td")][pr(k)[1]*COLS+pr(k)[0]];if(td)td.classList.add("on")}
+function commit(){if(ro)return;const raw=$("fx").value;if(raw===(D.cells[sel]||""))return;if(raw==="")delete D.cells[sel];else D.cells[sel]=raw;sv();grid()}
+$("fx").addEventListener("keydown",e=>{if(e.key=="Enter"){e.preventDefault();commit();const[c,r]=pr(sel);pick(cn(c)+(r+2))}});$("fx").addEventListener("blur",commit);
+function stl(p,v){if(ro)return;const s=D.st[sel]=D.st[sel]||{};if(p=="b")s.b=s.b?0:1;else s[p]=v;sv();grid();pick(sel)}
+function csvx(){const o=[];for(let r=0;r<ROWS;r++){const row=[];let any=false;for(let c=0;c<COLS;c++){const v=disp(cellVal(cn(c)+(r+1)));if(v)any=true;row.push('"'+v.replace(/"/g,'""')+'"')}if(any)o.push(row.join(";"))}dlBlob(($("ti").value||"tableur")+".csv","text/csv;charset=utf-8","\ufeff"+o.join("\n"))}
+$("ci").onchange=async e=>{const f=e.target.files[0];if(!f||ro)return;const t=await f.text(),sep=t.split("\n")[0].includes(";")?";":",";t.split(/\r?\n/).forEach((ln,r)=>{const cells=[];let cur="",q=false;for(const ch of ln){if(ch=='"')q=!q;else if(ch==sep&&!q){cells.push(cur);cur=""}else cur+=ch}cells.push(cur);cells.slice(0,COLS).forEach((v,c)=>{if(v!=="")D.cells[cn(c)+(r+1)]=v})});sv();grid();e.target.value=""};
+</script></body></html>

@@ -5,89 +5,161 @@
   "ver": {
    "$k": {
     ".read": true,
-    ".write": "auth!=null&&root.child('members').child(auth.uid).child('role').val()=='admin'"
+    ".write": "auth!=null&&(root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&$k!='backup'"
+   }
+  },
+  "maintenance": {
+   ".read": true,
+   ".write": "(root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)"
+  },
+  "blockedips": {
+   ".read": true,
+   ".write": "(root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)"
+  },
+  "resets": {
+   ".read": "(root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)",
+   "$k": {
+    ".write": "!data.exists()||(auth!=null&&(root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1))",
+    ".validate": "newData.hasChildren(['ts'])"
+   }
+  },
+  "contact": {
+   ".read": "(root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)",
+   "$id": {
+    ".write": "!data.exists()||(auth!=null&&(root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1))",
+    ".validate": "newData.hasChildren(['name','msg','ts'])&&newData.child('msg').val().length<2000&&newData.child('name').val().length<100"
    }
   },
   "members": {
-   ".read": "root.child('members').child(auth.uid).exists()",
+   ".read": "(root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)",
    "$uid": {
-    ".write": "auth!=null&&(root.child('members').child(auth.uid).child('role').val()=='admin'||!root.child('members').exists())"
+    ".write": "auth!=null&&(!root.child('members').exists()||((root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&(!data.exists()||data.child('key').val()!='backup')))"
+   }
+  },
+  "emails": {
+   "$k": {
+    ".read": "(((root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)||(root.child('members').child(auth.uid).child('role').val()=='editeur'&&root.child('members').child(auth.uid).child('disabled').val()!=1))||((root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&root.child('members').child(auth.uid).child('key').val()==$k))",
+    ".write": "(((root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&root.child('members').child(auth.uid).child('key').val()==$k)||(root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1))"
+   }
+  },
+  "presence": {
+   ".read": "(root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)",
+   "$k": {
+    ".write": "((root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&root.child('members').child(auth.uid).child('key').val()==$k)"
+   }
+  },
+  "ips": {
+   ".read": "(root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)",
+   "$k": {
+    ".write": "((root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&root.child('members').child(auth.uid).child('key').val()==$k)"
+   }
+  },
+  "seen": {
+   "$pair": {
+    ".read": "((root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&((root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)||root.child('members').child(auth.uid).child('perms').child('chat').val()==1))&&($pair.beginsWith(root.child('members').child(auth.uid).child('key').val()+'_')||$pair.endsWith('_'+root.child('members').child(auth.uid).child('key').val()))",
+    "$k": {
+     ".write": "((root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&((root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)||root.child('members').child(auth.uid).child('perms').child('chat').val()==1))&&($pair.beginsWith(root.child('members').child(auth.uid).child('key').val()+'_')||$pair.endsWith('_'+root.child('members').child(auth.uid).child('key').val()))&&root.child('members').child(auth.uid).child('key').val()==$k"
+    }
    }
   },
   "admin": {
-   ".read": "root.child('members').child(auth.uid).child('role').val()=='admin'",
-   ".write": "root.child('members').child(auth.uid).child('role').val()=='admin'"
+   ".read": "((root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)||(root.child('members').child(auth.uid).child('role').val()=='editeur'&&root.child('members').child(auth.uid).child('disabled').val()!=1))",
+   ".write": "((root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)||(root.child('members').child(auth.uid).child('role').val()=='editeur'&&root.child('members').child(auth.uid).child('disabled').val()!=1))"
   },
   "settings": {
-   ".read": "root.child('members').child(auth.uid).exists()",
-   ".write": "root.child('members').child(auth.uid).child('role').val()=='admin'"
+   ".read": "(root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)",
+   ".write": "(root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)"
   },
   "updates": {
    "$k": {
-    ".read": "(root.child('members').child(auth.uid).exists()&&(root.child('members').child(auth.uid).child('key').val()==$k||root.child('members').child(auth.uid).child('role').val()=='admin'))",
-    ".write": "root.child('members').child(auth.uid).child('role').val()=='admin'"
+    ".read": "((root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&(root.child('members').child(auth.uid).child('key').val()==$k||(root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)))",
+    ".write": "((root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)||(root.child('members').child(auth.uid).child('role').val()=='editeur'&&root.child('members').child(auth.uid).child('disabled').val()!=1))"
    }
   },
   "events": {
    "$k": {
-    ".read": "(root.child('members').child(auth.uid).exists()&&(root.child('members').child(auth.uid).child('key').val()==$k||root.child('members').child(auth.uid).child('role').val()=='admin'))",
-    ".write": "root.child('members').child(auth.uid).child('role').val()=='admin'"
+    ".read": "((root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&(root.child('members').child(auth.uid).child('key').val()==$k||(root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)))",
+    ".write": "((root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)||(root.child('members').child(auth.uid).child('role').val()=='editeur'&&root.child('members').child(auth.uid).child('disabled').val()!=1))"
    }
   },
   "perso": {
    "$k": {
-    ".read": "(root.child('members').child(auth.uid).exists()&&(root.child('members').child(auth.uid).child('key').val()==$k||root.child('members').child(auth.uid).child('role').val()=='admin'))",
-    ".write": "root.child('members').child(auth.uid).child('role').val()=='admin'"
+    ".read": "((root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&(root.child('members').child(auth.uid).child('key').val()==$k||(root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)))",
+    ".write": "((root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)||(root.child('members').child(auth.uid).child('role').val()=='editeur'&&root.child('members').child(auth.uid).child('disabled').val()!=1))"
    }
   },
   "tasks": {
    "$k": {
-    ".read": "(root.child('members').child(auth.uid).exists()&&(root.child('members').child(auth.uid).child('key').val()==$k||root.child('members').child(auth.uid).child('role').val()=='admin'))",
-    ".write": "root.child('members').child(auth.uid).child('role').val()=='admin'",
+    ".read": "((root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&(root.child('members').child(auth.uid).child('key').val()==$k||(root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)))",
+    ".write": "((root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)||(root.child('members').child(auth.uid).child('role').val()=='editeur'&&root.child('members').child(auth.uid).child('disabled').val()!=1))",
     "$id": {
      "done": {
-      ".write": "(root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('key').val()==$k)",
+      ".write": "((root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&root.child('members').child(auth.uid).child('key').val()==$k)",
       ".validate": "newData.val()==true"
      }
     }
    }
   },
   "chat": {
-   ".read": "(root.child('members').child(auth.uid).child('role').val()=='admin'||root.child('members').child(auth.uid).child('perms').child('chat').val()==1)",
-   ".write": "root.child('members').child(auth.uid).child('role').val()=='admin'",
+   ".read": "((root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&((root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)||root.child('members').child(auth.uid).child('perms').child('chat').val()==1))",
+   ".write": "(root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)",
    "$id": {
-    ".write": "(root.child('members').child(auth.uid).child('role').val()=='admin'||root.child('members').child(auth.uid).child('perms').child('chat').val()==1)&&((!data.exists()&&newData.child('k').val()==root.child('members').child(auth.uid).child('key').val())||(data.child('k').val()==root.child('members').child(auth.uid).child('key').val()&&(!newData.exists()||newData.child('k').val()==root.child('members').child(auth.uid).child('key').val()))||root.child('members').child(auth.uid).child('role').val()=='admin')",
+    ".write": "((root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&((root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)||root.child('members').child(auth.uid).child('perms').child('chat').val()==1))&&((!data.exists()&&newData.child('k').val()==root.child('members').child(auth.uid).child('key').val())||(data.child('k').val()==root.child('members').child(auth.uid).child('key').val()&&(!newData.exists()||newData.child('k').val()==root.child('members').child(auth.uid).child('key').val()))||(root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1))",
     ".validate": "newData.hasChildren(['u','k','ts'])"
    }
   },
   "dm": {
    "$pair": {
-    ".read": "(root.child('members').child(auth.uid).child('role').val()=='admin'||root.child('members').child(auth.uid).child('perms').child('chat').val()==1)&&($pair.beginsWith(root.child('members').child(auth.uid).child('key').val()+'_')||$pair.endsWith('_'+root.child('members').child(auth.uid).child('key').val()))",
+    ".read": "((root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&((root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)||root.child('members').child(auth.uid).child('perms').child('chat').val()==1))&&($pair.beginsWith(root.child('members').child(auth.uid).child('key').val()+'_')||$pair.endsWith('_'+root.child('members').child(auth.uid).child('key').val()))",
     "$id": {
-     ".write": "(root.child('members').child(auth.uid).child('role').val()=='admin'||root.child('members').child(auth.uid).child('perms').child('chat').val()==1)&&($pair.beginsWith(root.child('members').child(auth.uid).child('key').val()+'_')||$pair.endsWith('_'+root.child('members').child(auth.uid).child('key').val()))&&((!data.exists()&&newData.child('k').val()==root.child('members').child(auth.uid).child('key').val())||(data.child('k').val()==root.child('members').child(auth.uid).child('key').val()&&(!newData.exists()||newData.child('k').val()==root.child('members').child(auth.uid).child('key').val())))",
+     ".write": "((root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&((root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)||root.child('members').child(auth.uid).child('perms').child('chat').val()==1))&&($pair.beginsWith(root.child('members').child(auth.uid).child('key').val()+'_')||$pair.endsWith('_'+root.child('members').child(auth.uid).child('key').val()))&&((!data.exists()&&newData.child('k').val()==root.child('members').child(auth.uid).child('key').val())||(data.child('k').val()==root.child('members').child(auth.uid).child('key').val()&&(!newData.exists()||newData.child('k').val()==root.child('members').child(auth.uid).child('key').val())))",
      ".validate": "newData.hasChildren(['u','k','ts'])"
     }
    }
   },
   "mail": {
    "$k": {
-    ".read": "(root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('key').val()==$k)",
+    ".read": "((root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&root.child('members').child(auth.uid).child('key').val()==$k)",
     "$id": {
-     ".write": "root.child('members').child(auth.uid).exists()&&(root.child('members').child(auth.uid).child('key').val()==$k||(!data.exists()&&newData.child('from').val()==root.child('members').child(auth.uid).child('key').val()&&(root.child('members').child(auth.uid).child('role').val()=='admin'||root.child('members').child(auth.uid).child('perms').child('mail').val()==1)))"
+     ".write": "(root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&(root.child('members').child(auth.uid).child('key').val()==$k||(!data.exists()&&newData.child('from').val()==root.child('members').child(auth.uid).child('key').val()&&((root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&((root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)||root.child('members').child(auth.uid).child('perms').child('mail').val()==1))))",
+     "read": {
+      ".read": "(root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&(root.child('members').child(auth.uid).child('key').val()==$k||data.parent().child('from').val()==root.child('members').child(auth.uid).child('key').val())"
+     }
     }
    }
   },
   "sent": {
    "$k": {
-    ".read": "(root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('key').val()==$k)",
-    ".write": "(root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('key').val()==$k)&&(root.child('members').child(auth.uid).child('role').val()=='admin'||root.child('members').child(auth.uid).child('perms').child('mail').val()==1)"
+    ".read": "((root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&root.child('members').child(auth.uid).child('key').val()==$k)",
+    ".write": "((root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&root.child('members').child(auth.uid).child('key').val()==$k)&&((root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&((root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)||root.child('members').child(auth.uid).child('perms').child('mail').val()==1))"
+   }
+  },
+  "drive": {
+   ".read": "((root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&((root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)||root.child('members').child(auth.uid).child('perms').child('drive').val()==1))",
+   "$id": {
+    ".write": "((root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&((root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)||root.child('members').child(auth.uid).child('perms').child('drive').val()==1))&&((!data.exists()&&((root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)||(root.child('members').child(auth.uid).child('role').val()=='editeur'&&root.child('members').child(auth.uid).child('disabled').val()!=1))&&newData.child('by').val()==root.child('members').child(auth.uid).child('key').val())||data.child('by').val()==root.child('members').child(auth.uid).child('key').val()||(root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1))",
+    ".validate": "newData.hasChildren(['fid','n','by'])"
    }
   },
   "files": {
+   ".read": "(root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)",
    "$id": {
-    ".read": "root.child('members').child(auth.uid).exists()",
-    ".write": "root.child('members').child(auth.uid).exists()&&(!data.exists()||root.child('members').child(auth.uid).child('role').val()=='admin')",
-    ".validate": "newData.hasChildren(['n','t','d'])&&newData.child('d').val().length<4200000"
+    ".read": "(root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)",
+    ".write": "(root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&((!data.exists()&&newData.child('by').val()==root.child('members').child(auth.uid).child('key').val())||data.child('by').val()==root.child('members').child(auth.uid).child('key').val()||(root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1))",
+    ".validate": "newData.hasChildren(['n','t','d','by'])&&newData.child('d').val().length<4200000"
+   }
+  },
+  "officeidx": {
+   ".read": "((root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&((root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)||root.child('members').child(auth.uid).child('perms').child('office').val()==1))",
+   "$id": {
+    ".write": "((root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&((root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)||root.child('members').child(auth.uid).child('perms').child('office').val()==1))&&((!data.exists()&&newData.child('o').val()==root.child('members').child(auth.uid).child('key').val())||data.child('o').val()==root.child('members').child(auth.uid).child('key').val()||((root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)||(root.child('members').child(auth.uid).child('role').val()=='editeur'&&root.child('members').child(auth.uid).child('disabled').val()!=1)))"
+   }
+  },
+  "office": {
+   "$id": {
+    ".read": "((root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&((root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)||root.child('members').child(auth.uid).child('perms').child('office').val()==1))",
+    ".write": "((root.child('members').child(auth.uid).exists()&&root.child('members').child(auth.uid).child('disabled').val()!=1)&&((root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)||root.child('members').child(auth.uid).child('perms').child('office').val()==1))&&((!data.exists()&&newData.child('o').val()==root.child('members').child(auth.uid).child('key').val())||data.child('o').val()==root.child('members').child(auth.uid).child('key').val()||((root.child('members').child(auth.uid).child('role').val()=='admin'&&root.child('members').child(auth.uid).child('disabled').val()!=1)||(root.child('members').child(auth.uid).child('role').val()=='editeur'&&root.child('members').child(auth.uid).child('disabled').val()!=1)))",
+    ".validate": "newData.hasChildren(['o','c'])&&newData.child('c').val().length<3500000"
    }
   }
  }

@@ -1,5 +1,21 @@
-<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Chartreuse"><meta name="theme-color" content="#0b0b14"><link rel="stylesheet" href="style.css"><script>document.documentElement.dataset.theme=localStorage.theme||"sombre"</script><title>Agenda · Chartreuse</title></head><body>
-<main><h1 class="grad">Agenda</h1><p class="sub">Mapping de la Chartreuse</p><div class="card"><div class="tl" id="tl"></div></div></main>
-<script src="config.js?v=3"></script><script src="data.js?v=3"></script><script src="auth.js?v=3"></script><script>
-boot("g","agenda").then(s=>DB.watch("events/"+s.key,o=>{const a=Object.values(o||{}).sort((x,y)=>x.ord-y.ord);document.getElementById("tl").innerHTML=a.map(v=>`<div class="ev"><time>${esc(v.when)}</time><h3>${esc(v.title)}</h3><p>${esc(v.desc)}</p></div>`).join("")||'<p class="mu">Rien de prévu.</p>'}));
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Chartreuse"><meta name="theme-color" content="#0b0b14"><link rel="stylesheet" href="style.css?v=4"><script>document.documentElement.dataset.theme=localStorage.theme||"sombre";try{const p=JSON.parse(localStorage.prefs||"{}"),r=document.documentElement.style;if(p.a)r.setProperty("--c1",p.a);if(p.b)r.setProperty("--c2",p.b);if(p.f)r.fontSize=p.f+"px"}catch(e){};try{const p=JSON.parse(localStorage.prefs||"{}"),r=document.documentElement.style;if(p.a)r.setProperty("--c1",p.a);if(p.b)r.setProperty("--c2",p.b);if(p.f)r.fontSize=p.f+"px"}catch(e){};try{const p=JSON.parse(localStorage.prefs||"{}"),r=document.documentElement.style;if(p.a)r.setProperty("--c1",p.a);if(p.b)r.setProperty("--c2",p.b);if(p.f)r.fontSize=p.f+"px"}catch(e){};try{const p=JSON.parse(localStorage.prefs||"{}"),r=document.documentElement.style;if(p.a)r.setProperty("--c1",p.a);if(p.b)r.setProperty("--c2",p.b);if(p.f)r.fontSize=p.f+"px"}catch(e){}</script><title>Agenda · Chartreuse</title></head><body>
+<main><h1 class="grad">Agenda</h1><p class="sub">Événements et échéances de tâches.</p>
+<div class="card"><div class="calh"><button class="g" onclick="mv(-1)">‹</button><b id="mt"></b><button class="g" onclick="mv(1)">›</button></div><div class="cal" id="cal"></div></div>
+<div class="card" id="ls"></div></main>
+<script src="config.js?v=4"></script><script src="data.js?v=4"></script><script src="auth.js?v=4"></script><script>
+const $=i=>document.getElementById(i);let EV={},TK={},cm=new Date(),sel=null;
+boot("g","agenda").then(s=>{DB.watch("events/"+s.key,o=>{EV=o||{};draw()});DB.watch("tasks/"+s.key,o=>{TK=o||{};draw()})});
+const ymd=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+function mv(n){cm=new Date(cm.getFullYear(),cm.getMonth()+n,1);draw()}function pk(d){sel=sel==d?null:d;draw()}
+function items(){const by={};Object.values(EV).forEach(v=>{if(v.date)(by[v.date]=by[v.date]||[]).push({k:"e",...v})});Object.values(TK).forEach(v=>{if(v.due)(by[v.due]=by[v.due]||[]).push({k:"t",title:v.title,done:v.done,date:v.due})});return by}
+const line=v=>v.k=="t"?`<div class="row"><div>${v.done?"✅":"⬜"} <b>${esc(v.title)}</b> <small class="mu">échéance</small></div></div>`:`<div class="ev"><time>${esc(v.when||"")} ${v.date?new Date(v.date).toLocaleDateString("fr-FR",{day:"numeric",month:"short"}):""} ${esc(v.time||"")}</time><h3>${esc(v.title)}</h3><p>${esc(v.desc||"")}</p></div>`;
+function draw(){const y=cm.getFullYear(),m=cm.getMonth(),off=(new Date(y,m,1).getDay()+6)%7,n=new Date(y,m+1,0).getDate(),by=items(),td=ymd(new Date());
+$("mt").textContent=cm.toLocaleDateString("fr-FR",{month:"long",year:"numeric"});
+let h=["L","M","M","J","V","S","D"].map(x=>`<b>${x}</b>`).join("")+'<button class="out"></button>'.repeat(off);
+for(let d=1;d<=n;d++){const k=y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0"),c=by[k]||[];h+=`<button class="${k==td?"today":""} ${k==sel?"sel":""}" onclick="pk('${k}')">${d}${c.length?`<i>${"●".repeat(Math.min(c.length,3))}</i>`:""}</button>`}
+$("cal").innerHTML=h;
+if(sel){$("ls").innerHTML=`<h2>${new Date(sel).toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"})}</h2>`+((by[sel]||[]).map(line).join("")||'<p class="mu">Rien ce jour-là.</p>')}
+else{const up=Object.entries(by).filter(([k])=>k>=td).sort().flatMap(([k,a])=>a),nd=Object.values(EV).filter(v=>!v.date).sort((a,b)=>a.ord-b.ord);
+$("ls").innerHTML="<h2>À venir</h2>"+(up.map(line).join("")||'<p class="mu">Rien de daté à venir.</p>')+(nd.length?'<h2 style="margin-top:18px">Programme (sans date)</h2><div class="tl">'+nd.map(line).join("")+"</div>":"")}}
+draw();
 </script></body></html>

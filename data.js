@@ -1,5 +1,5 @@
 const emailOf=(k,v)=>`${k}${v?".v"+v:""}@chartreuse.app`;
-const DEF_PERMS={agenda:1,chat:1,taches:1,mail:1};
+const DEF_PERMS={agenda:1,chat:1,taches:1,mail:1,drive:1,office:1};
 const pair=(a,b)=>[a,b].sort().join("_");
 const Auth={
 get s(){return JSON.parse(localStorage.fbs||"null")},
@@ -15,6 +15,7 @@ async req(m,p,body,q=""){const t=await Auth.token(),r=await fetch(`${this.base}/
 get(p){return this.req("GET",p)},put(p,v){return this.req("PUT",p,v)},patch(p,v){return this.req("PATCH",p,v)},del(p){return this.req("DELETE",p)},
 last(p,n){return this.req("GET",p,undefined,"orderBy="+encodeURIComponent('"$key"')+"&limitToLast="+n)},
 async pub(p){const r=await fetch(`${this.base}/${p}.json`);return r.json()},
+async pubPut(p,v){const r=await fetch(`${this.base}/${p}.json`,{method:"PUT",body:JSON.stringify(v)});if(!r.ok)throw new Error("Envoi refusé")},
 id(){return Date.now().toString(36)+Math.random().toString(36).slice(2,4)},
 watch(p,cb,ms=4000){let last;const t=async()=>{try{const v=await this.get(p),s=JSON.stringify(v);if(s!==last){last=s;cb(v)}}catch(e){if(/expir|refus/.test(e.message))logout()}};t();setInterval(t,ms)}};
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -42,5 +43,13 @@ function shrink(file){return new Promise((res,rej)=>{const i=new Image,u=URL.cre
 async function upFile(file){let d,t=file.type||"application/octet-stream",n=file.name;
 if(t.startsWith("image/")&&!/gif|svg/.test(t)){try{d=await shrink(file);t="image/jpeg";n=n.replace(/\.\w+$/,"")+".jpg"}catch(e){}}
 if(!d){if(file.size>3e6)throw new Error("Fichier trop lourd (max 3 Mo)");d=await readURL(file)}
-const id=DB.id();await DB.put("files/"+id,{n,t,d});return id}
+const id=DB.id();await DB.put("files/"+id,{n,t,d,by:(JSON.parse(localStorage.sess||"{}")).key||"?"});return id}
 function zoom(u){const d=document.createElement("div");d.className="lb";d.innerHTML=`<img src="${u}">`;d.onclick=()=>d.remove();document.body.append(d)}
+
+const rndCode=n=>Array.from(crypto.getRandomValues(new Uint8Array(n)),x=>x%10).join("");
+async function sendMail(to,subject,message){const e=CONFIG.emailjs||{};if(!e.service||!e.template||!e.key)return false;try{const r=await fetch("https://api.emailjs.com/api/v1.0/email/send",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({service_id:e.service,template_id:e.template,user_id:e.key,template_params:{to_email:to,subject,message}})});return r.ok}catch(x){return false}}
+async function notify(keys,subject,message){let n=0;for(const k of keys){try{const e=await DB.get("emails/"+k);if(e&&await sendMail(e,subject,message))n++}catch(x){}}return n}
+async function rekey(k,role,p,perms){const u=USR[k];let v=(await DB.pub("ver/"+k)||0)+1,j;for(let i=0;i<6&&!j;i++){try{j=await fbAuth("signUp",emailOf(k,v),p)}catch(e){if(e.message.startsWith("EMAIL_EXISTS")){v++;continue}throw e}}
+if(!j)throw new Error("Échec");await DB.put("members/"+j.localId,{key:k,name:u.name,role,perms:perms||u.perms||{},...(u.disabled?{disabled:1}:{})});await DB.del("members/"+u.uid);await DB.put("ver/"+k,v);await users()}
+const ago=t=>{if(!t)return"jamais";const m=Math.round((Date.now()-t)/6e4);return m<2?"à l'instant":m<60?"il y a "+m+" min":m<1440?"il y a "+Math.round(m/60)+" h":"il y a "+Math.round(m/1440)+" j"};
+const bytes=b=>b>1e6?(b/1e6).toFixed(1)+" Mo":Math.round(b/1e3)+" Ko";
